@@ -7,3 +7,16 @@
 //
 
 import Foundation
+
+struct CurrentWeather : Codable {
+    
+    let summary : String
+    let icon : String
+    let temperature : Double
+    let apparentTemperature : Double
+    let humidity : Double
+    let windSpeed : Double
+    let windBearing : Int
+    let visibility : Double
+    
+}

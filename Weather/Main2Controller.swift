@@ -6,4 +6,15 @@
 //  Copyright © 2018 Alen Kirm. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
+class Main2Controller : UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = .white
+        
+    }
+    
+}

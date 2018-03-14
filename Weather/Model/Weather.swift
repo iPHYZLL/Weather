@@ -7,3 +7,16 @@
 //
 
 import Foundation
+
+struct Weather : Codable {
+    
+    let currently : CurrentWeather
+    let daily : DailyData
+    
+}
+
+struct DailyData : Codable {
+    
+    let data : [DailyWeather]
+    
+}

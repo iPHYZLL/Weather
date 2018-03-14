@@ -17,11 +17,37 @@ class MainController: UIViewController {
     
     var weather : Weather? {
         didSet {
+            guard let weather = weather else { return }
             // update layout ...
             DispatchQueue.main.async {
-                self.updateLayoutForWeather(weather: self.weather!)
+                self.updateLayoutForWeather(weather: weather)
             }
+            
+            // update array of weekly weather
+            var weeklyWeatherData = [DailyWeather]()
+            
+            for dailyWeather in weather.daily.data {
+                
+                let daily = DailyWeather(summary: dailyWeather.summary, icon: dailyWeather.icon, time: dailyWeather.time, humidity: dailyWeather.humidity, windSpeed: dailyWeather.windSpeed, windBearing: dailyWeather.windBearing, temperatureHigh: dailyWeather.temperatureHigh, temperatureHighTime: dailyWeather.temperatureHighTime, temperatureLow: dailyWeather.temperatureLow, temperatureLowTime: dailyWeather.temperatureLowTime)
+                
+                weeklyWeatherData.append(daily)
+            }
+            
+            self.weeklyWeather = weeklyWeatherData
+            
         }
+    }
+    
+    var weeklyWeather : [DailyWeather]? {
+        
+        didSet {
+            print("There is weather data available for \(weeklyWeather?.count ?? 0) days.")
+            for weather in weeklyWeather! {
+                print(weather)
+            }
+            
+        }
+        
     }
     
     var currentLocation : CLLocation? {
@@ -189,8 +215,16 @@ class MainController: UIViewController {
     
     
     @objc func weeklyButtonPressed(sender : UIButton) {
-        sender.backgroundColor = UIColor.themedBlue
-        sender.setTitleColor(UIColor.themedWhite, for: .normal)
+        
+        let weeklyController = WeeklyController()
+        weeklyController.navigationItem.title = "WEEKLY"
+        weeklyController.weeklyWeather = self.weeklyWeather
+        
+        let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
+        self.navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(weeklyController, animated: true)
+        
     }
     
     override func viewDidLoad() {
@@ -202,7 +236,7 @@ class MainController: UIViewController {
         view.backgroundColor = UIColor.themedWhite
         self.navigationItem.title = "WEATHER"
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(handleSearchTapped))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "search"), style: .plain, target: self, action: #selector(handleSearchTapped))
         
         // add subviews
         layoutViews()
@@ -214,10 +248,6 @@ class MainController: UIViewController {
         let searchController = SearchCityController()
         searchController.navigationItem.title = "SEARCH CITY"
         
-        let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
-        
-        self.navigationItem.backBarButtonItem = backButton
-        
         self.navigationController?.pushViewController(searchController, animated: true)
         
     }
@@ -225,18 +255,6 @@ class MainController: UIViewController {
     fileprivate func updateLayoutForWeather(weather : Weather) {
         
         let currentWeather = weather.currently
-        print(currentWeather)
-        
-        for daily in weather.daily.data {
-            let date = Date(timeIntervalSince1970: Double(daily.time))
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = .full
-            dateFormatter.timeStyle = .full
-            
-            let localDate = dateFormatter.string(from: date)
-            print(localDate)
-        }
         
         weatherTypeLabel.text = currentWeather.summary
         weatherImageView.image = UIImage(named: currentWeather.icon.getSummaryCode())
@@ -266,7 +284,7 @@ class MainController: UIViewController {
             do {
                 
                 self.weather = try JSONDecoder().decode(Weather.self, from: data)
-                
+
             } catch {
                 print(error.localizedDescription)
             }
@@ -309,7 +327,7 @@ class MainController: UIViewController {
         contentView.addSubview(weeklyWeatherButton)
         weeklyWeatherButton.anchor(top: nil, paddingTop: 0, right: nil, paddingRight: 0, left: nil, paddingLeft: 0, bottom: contentView.bottomAnchor, paddingBottom: 20, width: 200, height: 40)
         weeklyWeatherButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
-        weeklyWeatherButton.layer.cornerRadius = 20
+        weeklyWeatherButton.layer.cornerRadius = 10
 
         // details stuff
         

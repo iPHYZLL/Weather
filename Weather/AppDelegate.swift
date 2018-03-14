@@ -15,7 +15,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        window = UIWindow()
+        
+        let mainController = MainController()
+        let mainNavigationController = UINavigationController(rootViewController: mainController)
+        mainNavigationController.view.backgroundColor = UIColor.themedWhite
+        
+        let backImage = UIImage(named: "back")
+        mainNavigationController.navigationBar.backIndicatorImage = backImage
+        mainNavigationController.navigationBar.backIndicatorTransitionMaskImage = backImage
+        
+        // no translucency for navigation bar
+        UINavigationBar.appearance().isTranslucent = false
+        
+        // navigation bar background color
+        UINavigationBar.appearance().barTintColor = UIColor.themedWhite
+        
+        // navigation bar controls color
+        UINavigationBar.appearance().tintColor = UIColor.themedBlue
+        
+        // navigation bar title color
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.themedBlue]
+        
+        // TOGGLE, ITS OPTIONAL
+        // navigation bar large title
+//        mainNavigationController.navigationBar.prefersLargeTitles = true
+//        UINavigationBar.appearance().largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.themedWhite]
+        
+        // status bar style
+//        application.statusBarStyle = .lightContent
+        
+        // remove navigation bar bottom shadow
+        UINavigationBar.appearance().shadowImage = UIImage()
+//        UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+        
+        window?.rootViewController = mainNavigationController
+        window?.makeKeyAndVisible()
+        
         return true
     }
 

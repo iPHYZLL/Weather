@@ -13,7 +13,8 @@ class SearchCityController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .red
+        view.backgroundColor = UIColor.themedWhite
+        
     }
     
 }

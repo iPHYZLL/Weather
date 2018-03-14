@@ -28,7 +28,7 @@ class WCButton: UIButton {
             
             UIView.animate(withDuration: 0.25) {
                 self.setTitleColor(self.isHighlighted ? UIColor.themedWhite : UIColor.themedBlue, for: .normal)
-                self.backgroundColor = self.isHighlighted ? UIColor.themedBlue : UIColor.themedWhite
+                self.backgroundColor = self.isHighlighted ? UIColor.themedBlue : UIColor.clear
             }
             
         }
