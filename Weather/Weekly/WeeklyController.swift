@@ -77,13 +77,13 @@ extension WeeklyController : UICollectionViewDataSource, UICollectionViewDelegat
         
         let weather = weeklyWeather[indexPath.item]
         
-        cell.imageView.image = UIImage(named: weather.icon.getSummaryCode())
+        cell.imageView.image = UIImage(named: weather.icon?.getSummaryCode() ?? "")
         cell.summaryLabel.text = weather.summary
-        cell.highTempLabel.text = "\(weather.temperatureHigh.rounded())°"
-        cell.highTempTimeLabel.text = weather.temperatureHighTime.toHour()
-        cell.lowTempLabel.text = "\(weather.temperatureLow.rounded())°"
-        cell.lowTempTimeLabel.text = weather.temperatureLowTime.toHour()
-        cell.dayLabel.text = indexPath.item == 0 ? "TODAY" : weather.time.toDay().uppercased()
+        cell.highTempLabel.text = "\(weather.temperatureHigh?.rounded() ?? 0.0)°"
+        cell.highTempTimeLabel.text = weather.temperatureHighTime?.toHour()
+        cell.lowTempLabel.text = "\(weather.temperatureLow?.rounded() ?? 0.0)°"
+        cell.lowTempTimeLabel.text = weather.temperatureLowTime?.toHour()
+        cell.dayLabel.text = indexPath.item == 0 ? "TODAY" : weather.time?.toDay().uppercased()
         
         return cell
     }
@@ -113,16 +113,17 @@ extension WeeklyController : UICollectionViewDataSource, UICollectionViewDelegat
         
         let weather = weeklyWeather[cellIndex]
         
-        // table view delegate and datasource
-        modalView.tableView.delegate = self
-        modalView.tableView.dataSource = self
-        modalView.tableView.register(DailyWeatherDetailCell.self, forCellReuseIdentifier: "DailyWeatherDetailCell")
         
-        modalView.dayLabel.text = cellIndex == 0 ? "TODAY" : weather.time.toDay().uppercased()
+        modalView.dayLabel.text = cellIndex == 0 ? "TODAY" : weather.time?.toDay().uppercased() ?? "nil"
         modalView.summaryLabel.text = weather.summary
-        modalView.imageView.image = UIImage(named: weather.icon.getSummaryCode())
+        modalView.imageView.image = UIImage(named: weather.icon?.getSummaryCode() ?? "")
+        modalView.maxTemperatureValue.text = "\(weather.temperatureHigh?.rounded() ?? 0.0)° at \(weather.temperatureHighTime?.toHour() ?? "0:0")"
+        modalView.minTemperatureValue.text = "\(weather.temperatureLow?.rounded() ?? 0.0)° at \(weather.temperatureLowTime?.toHour() ?? "0:0")"
+        modalView.windValue.text = "\(weather.windSpeed?.rounded().doubleToString(with: "Km/h") ?? "0 Km/h") from \(weather.windBearing?.toCompass() ?? "")"
+        modalView.humidityValue.text = weather.humidity?.toPercent() ?? "0 %"
+        modalView.visibilityValue.text = weather.visibility?.rounded().doubleToString(with: "km") ?? "0 km"
         
-        UIView.animate(withDuration: 0.5) {
+        UIView.animate(withDuration: 0.25) {
             modalView.heightAnchor.constraint(equalToConstant: self.view.frame.height - 40).isActive = true
             collectionView.layoutSubviews()
         }
@@ -139,37 +140,6 @@ extension WeeklyController : UICollectionViewDataSource, UICollectionViewDelegat
         return 20
     }
 }
-
-////////////////////////////////////////////////////////
-// MARK: TABLE VIEW STUFF
-////////////////////////////////////////////////////////
-
-extension WeeklyController : UITableViewDataSource, UITableViewDelegate {
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "SECTION"
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "DailyWeatherDetailCell", for: indexPath) as? DailyWeatherDetailCell else { return UITableViewCell() }
-        
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
-    }
-    
-}
-
 
 
 

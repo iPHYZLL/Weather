@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC4EB10D206127AC008B6B8F /* WVInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC4EB10C206127AC008B6B8F /* WVInfoView.swift */; };
 		BC6BA1212051701200B12DC7 /* UserLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6BA1202051701200B12DC7 /* UserLocation.swift */; };
 		BC6BA1252051722900B12DC7 /* SearchCityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6BA1242051722900B12DC7 /* SearchCityController.swift */; };
 		BC6DF79A20569E4F007D122E /* DailyWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6DF79920569E4F007D122E /* DailyWeather.swift */; };
@@ -32,6 +33,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BC4EB10C206127AC008B6B8F /* WVInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WVInfoView.swift; sourceTree = "<group>"; };
 		BC6BA1202051701200B12DC7 /* UserLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocation.swift; sourceTree = "<group>"; };
 		BC6BA1242051722900B12DC7 /* SearchCityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCityController.swift; sourceTree = "<group>"; };
 		BC6DF79920569E4F007D122E /* DailyWeather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyWeather.swift; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 			children = (
 				BCE3631C20529E0A003A5753 /* WCButton.swift */,
 				BCA6C182205810F5001E0437 /* WVModalView.swift */,
+				BC4EB10C206127AC008B6B8F /* WVInfoView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -261,6 +264,7 @@
 				BCE363162051A77A003A5753 /* Urls.swift in Sources */,
 				BC6BA1212051701200B12DC7 /* UserLocation.swift in Sources */,
 				BCC0AA202052B1110031C63E /* CLLocation+Extension.swift in Sources */,
+				BC4EB10D206127AC008B6B8F /* WVInfoView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

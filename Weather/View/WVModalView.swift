@@ -42,27 +42,95 @@ class WVModalView: UIView {
         return l
     }()
     
-    let containerScrollView : UIScrollView = {
-        let cv = UIScrollView()
-        cv.backgroundColor = UIColor.themedBlue
-        return cv
+    let maxTemperatureName : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.boldSystemFont(ofSize: 14)
+        l.textAlignment = .center
+        l.text = "HIGH TEMPERATURE"
+        return l
     }()
     
-    let containerView : UIView = {
-        let cv = UIView()
-        cv.backgroundColor = UIColor.themedOrange
-        return cv
+    let maxTemperatureValue : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.systemFont(ofSize: 14)
+        l.textAlignment = .center
+        l.text = "20° at 16:00"
+        return l
     }()
     
-    let tableView : UITableView = {
-        let tv = UITableView()
-        tv.separatorStyle = .none
-        tv.allowsSelection = false
-        tv.bounces = false
-        return tv
+    let minTemperatureName : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.boldSystemFont(ofSize: 14)
+        l.textAlignment = .center
+        l.text = "LOW TEMPERATURE"
+        return l
+    }()
+    
+    let minTemperatureValue : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.systemFont(ofSize: 14)
+        l.textAlignment = .center
+        l.text = "0° at 01:00"
+        return l
+    }()
+    
+    let windName : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.boldSystemFont(ofSize: 14)
+        l.textAlignment = .center
+        l.text = "WIND"
+        return l
+    }()
+    
+    let windValue : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.systemFont(ofSize: 14)
+        l.textAlignment = .center
+        return l
+    }()
+    
+    let humidityName : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.boldSystemFont(ofSize: 14)
+        l.textAlignment = .center
+        l.text = "HUMIDITY"
+        return l
+    }()
+    
+    let humidityValue : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.systemFont(ofSize: 14)
+        l.textAlignment = .center
+        return l
+    }()
+    
+    let visibilityName : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.boldSystemFont(ofSize: 14)
+        l.textAlignment = .center
+        l.text = "VISIBILITY"
+        return l
+    }()
+    
+    let visibilityValue : UILabel = {
+        let l = UILabel()
+        l.textColor = UIColor.themedBlack
+        l.font = UIFont.systemFont(ofSize: 14)
+        l.textAlignment = .center
+        return l
     }()
     
     let padding : CGFloat = 20
+    let stackViewSpacing : CGFloat = 10
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -80,10 +148,41 @@ class WVModalView: UIView {
         imageView.anchor(top: dayLabel.bottomAnchor, paddingTop: 0, right: nil, paddingRight: 0, left: nil, paddingLeft: 0, bottom: nil, paddingBottom: 0, width: (frame.height / 3) * 2, height: (frame.height / 3) * 2)
         imageView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
         
-        addSubview(tableView)
-        tableView.anchor(top: imageView.bottomAnchor, paddingTop: 0, right: rightAnchor, paddingRight: 0, left: leftAnchor, paddingLeft: 0, bottom: bottomAnchor, paddingBottom: 0, width: 0, height: 0)
-        tableView.layer.cornerRadius = 10
-        tableView.backgroundColor = UIColor.themedGray
+        addSubview(summaryLabel)
+        summaryLabel.anchor(top: imageView.bottomAnchor, paddingTop: 0, right: rightAnchor, paddingRight: padding, left: leftAnchor, paddingLeft: padding, bottom: nil, paddingBottom: 0, width: 0, height: 50)
+
+        ////////////////////////////////////////////////////////
+        // MARK: stackviews
+        ////////////////////////////////////////////////////////
+        
+        let maxTempStackView = UIStackView(arrangedSubviews: [maxTemperatureName, maxTemperatureValue])
+        maxTempStackView.distribution = .fillEqually
+        maxTempStackView.axis = .vertical
+        
+        let minTempStackView = UIStackView(arrangedSubviews: [minTemperatureName, minTemperatureValue])
+        minTempStackView.distribution = .fillEqually
+        minTempStackView.axis = .vertical
+        
+        let windStackView = UIStackView(arrangedSubviews: [windName, windValue])
+        windStackView.distribution = .fillEqually
+        windStackView.axis = .vertical
+
+        let humidityStackView = UIStackView(arrangedSubviews: [humidityName, humidityValue])
+        humidityStackView.distribution = .fillEqually
+        humidityStackView.axis = .vertical
+        
+        let visibilityStackView = UIStackView(arrangedSubviews: [visibilityName, visibilityValue])
+        visibilityStackView.distribution = .fillEqually
+        visibilityStackView.axis = .vertical
+        
+        let weatherStackView = UIStackView(arrangedSubviews: [maxTempStackView, minTempStackView, windStackView, humidityStackView, visibilityStackView])
+        weatherStackView.distribution = .fillEqually
+        weatherStackView.spacing = stackViewSpacing
+        weatherStackView.axis = .vertical
+        
+        
+        addSubview(weatherStackView)
+        weatherStackView.anchor(top: summaryLabel.bottomAnchor, paddingTop: padding, right: summaryLabel.rightAnchor, paddingRight: 0, left: summaryLabel.leftAnchor, paddingLeft: 0, bottom: bottomAnchor, paddingBottom: padding, width: 0, height: 0)
         
     }
     

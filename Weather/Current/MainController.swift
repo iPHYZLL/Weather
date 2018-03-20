@@ -28,7 +28,7 @@ class MainController: UIViewController {
             
             for dailyWeather in weather.daily.data {
                 
-                let daily = DailyWeather(summary: dailyWeather.summary, icon: dailyWeather.icon, time: dailyWeather.time, humidity: dailyWeather.humidity, windSpeed: dailyWeather.windSpeed, windBearing: dailyWeather.windBearing, temperatureHigh: dailyWeather.temperatureHigh, temperatureHighTime: dailyWeather.temperatureHighTime, temperatureLow: dailyWeather.temperatureLow, temperatureLowTime: dailyWeather.temperatureLowTime)
+                let daily = DailyWeather(summary: dailyWeather.summary, icon: dailyWeather.icon, time: dailyWeather.time, humidity: dailyWeather.humidity, windSpeed: dailyWeather.windSpeed, windBearing: dailyWeather.windBearing, temperatureHigh: dailyWeather.temperatureHigh, temperatureHighTime: dailyWeather.temperatureHighTime, temperatureLow: dailyWeather.temperatureLow, temperatureLowTime: dailyWeather.temperatureLowTime, visibility : dailyWeather.visibility)
                 
                 weeklyWeatherData.append(daily)
             }
@@ -58,10 +58,11 @@ class MainController: UIViewController {
                 UserLocation.shared.longitude = location.coordinate.longitude
                 
                 location.getCurrentCity(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude) { (cityName) in
-                    self.navigationItem.title = cityName
+                    self.navigationItem.title = cityName.uppercased()
                 }
                 
                 requestWeather(withUrl: WEATHER_URL_REQUEST)
+                print(WEATHER_URL_REQUEST)
             }
         }
     }
@@ -327,7 +328,7 @@ class MainController: UIViewController {
         contentView.addSubview(weeklyWeatherButton)
         weeklyWeatherButton.anchor(top: nil, paddingTop: 0, right: nil, paddingRight: 0, left: nil, paddingLeft: 0, bottom: contentView.bottomAnchor, paddingBottom: 20, width: 200, height: 40)
         weeklyWeatherButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
-        weeklyWeatherButton.layer.cornerRadius = 10
+        weeklyWeatherButton.layer.cornerRadius = 5
 
         // details stuff
         

@@ -10,15 +10,16 @@ import Foundation
 
 struct DailyWeather : Codable {
     
-    let summary : String
-    let icon : String
-    let time : Int
-    let humidity : Double
-    let windSpeed : Double
-    let windBearing : Int
-    let temperatureHigh : Double
-    let temperatureHighTime : Int
-    let temperatureLow : Double
-    let temperatureLowTime : Int
+    var summary : String?
+    var icon : String?
+    var time : Int?
+    var humidity : Double?
+    var windSpeed : Double?
+    var windBearing : Int?
+    var temperatureHigh : Double?
+    var temperatureHighTime : Int?
+    var temperatureLow : Double?
+    var temperatureLowTime : Int?
+    var visibility : Double?
     
 }

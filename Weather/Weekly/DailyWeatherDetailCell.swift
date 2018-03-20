@@ -36,14 +36,14 @@ class DailyWeatherDetailCell : UITableViewCell {
         
         addSubview(infoTitleLabel)
         infoTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        infoTitleLabel.leftAnchor.constraint(equalTo: leftAnchor, constant: 10).isActive = true
+        infoTitleLabel.leftAnchor.constraint(equalTo: leftAnchor, constant: 20).isActive = true
         infoTitleLabel.rightAnchor.constraint(equalTo: centerXAnchor).isActive = true
         infoTitleLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         
         addSubview(infoValueLabel)
         infoValueLabel.translatesAutoresizingMaskIntoConstraints = false
         infoValueLabel.leftAnchor.constraint(equalTo: centerXAnchor).isActive = true
-        infoValueLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -10).isActive = true
+        infoValueLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -20).isActive = true
         infoValueLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         
         
