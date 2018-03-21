@@ -75,6 +75,12 @@ class MainController: UIViewController {
         return v
     }()
     
+    let infoContainerView : UIView = {
+        let v = UIView()
+        v.layer.cornerRadius = 10
+        return v
+    }()
+    
     var weatherTypeLabel : UILabel = {
         let l = UILabel()
         l.textColor = UIColor.themedBlack
@@ -116,100 +122,38 @@ class MainController: UIViewController {
         return v
     }()
     
-    let feelsLikeLabel : UILabel = {
-        let l = UILabel()
-        l.text = "FEELS LIKE"
-        l.textAlignment = .center
-        l.font = UIFont.systemFont(ofSize: 14)
-        l.textColor = UIColor.themedBlack
-        return l
+    let feelsLikeView : WVInfoView = {
+        let v = WVInfoView(style: WVInfoViewStyle.horizontal)
+        v.nameLabel.text = "FEELS LIKE"
+        v.backgroundColor = UIColor.themedGray
+        return v
     }()
     
-    let feelsLikeValueLabel : UILabel = {
-        let l = UILabel()
-        l.textColor = UIColor.themedBlack
-        l.text = "25°"
-        l.textAlignment = .center
-        l.font = UIFont.boldSystemFont(ofSize: 14)
-        return l
+    let windView : WVInfoView = {
+        let v = WVInfoView(style: WVInfoViewStyle.horizontal)
+        v.nameLabel.text = "WIND"
+        v.backgroundColor = UIColor.themedGray
+        return v
     }()
     
-    let humidityLabel : UILabel = {
-        let l = UILabel()
-        l.text = "HUMIDITY"
-        l.textAlignment = .center
-        l.font = UIFont.systemFont(ofSize: 14)
-        l.textColor = UIColor.themedBlack
-        return l
+    let humidityView : WVInfoView = {
+        let v = WVInfoView(style: WVInfoViewStyle.horizontal)
+        v.nameLabel.text = "HUMIDITY"
+        v.backgroundColor = UIColor.themedGray
+        return v
     }()
     
-    let humidityValueLabel : UILabel = {
-        let l = UILabel()
-        l.textColor = UIColor.themedBlack
-        l.text = "55%"
-        l.textAlignment = .center
-        l.font = UIFont.boldSystemFont(ofSize: 14)
-        return l
+    let visibilityView : WVInfoView = {
+        let v = WVInfoView(style: WVInfoViewStyle.horizontal)
+        v.nameLabel.text = "VISIBILITY"
+        v.backgroundColor = UIColor.themedGray
+        return v
     }()
     
-    let windSpeedLabel : UILabel = {
-        let l = UILabel()
-        l.text = "WIND SPEED"
-        l.textAlignment = .center
-        l.font = UIFont.systemFont(ofSize: 14)
-        l.textColor = UIColor.themedBlack
-        return l
-    }()
-    
-    let windSpeedValueLabel : UILabel = {
-        let l = UILabel()
-        l.textColor = UIColor.themedBlack
-        l.text = "15.7 Km/h"
-        l.textAlignment = .center
-        l.font = UIFont.boldSystemFont(ofSize: 14)
-        return l
-    }()
-    
-    let windDirectionLabel : UILabel = {
-        let l = UILabel()
-        l.text = "DIRECTION"
-        l.textAlignment = .center
-        l.font = UIFont.systemFont(ofSize: 14)
-        l.textColor = UIColor.themedBlack
-        return l
-    }()
-    
-    let windDirectionValueLabel : UILabel = {
-        let l = UILabel()
-        l.textColor = UIColor.themedBlack
-        l.text = "North"
-        l.textAlignment = .center
-        l.font = UIFont.boldSystemFont(ofSize: 14)
-        return l
-    }()
-    
-    let visibilityLabel : UILabel = {
-        let l = UILabel()
-        l.text = "VISIBILITY"
-        l.textAlignment = .center
-        l.font = UIFont.systemFont(ofSize: 14)
-        l.textColor = UIColor.themedBlack
-        return l
-    }()
-    
-    let visibilityValueLabel : UILabel = {
-        let l = UILabel()
-        l.textColor = UIColor.themedBlack
-        l.text = "17 km"
-        l.textAlignment = .center
-        l.font = UIFont.boldSystemFont(ofSize: 14)
-        return l
-    }()
     
     let weeklyWeatherButton : WCButton = {
         let b = WCButton()
         b.setTitle("WEEKLY", for: .normal)
-        b.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         b.addTarget(self, action: #selector(weeklyButtonPressed(sender:)), for: .touchUpInside)
         return b
     }()
@@ -238,9 +182,22 @@ class MainController: UIViewController {
         self.navigationItem.title = "WEATHER"
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "search"), style: .plain, target: self, action: #selector(handleSearchTapped))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "refresh"), style: .plain, target: self, action: #selector(handleRefreshTapped))
         
         // add subviews
         layoutViews()
+        
+    }
+    
+    @objc func handleRefreshTapped() {
+        
+        requestWeather(withUrl: WEATHER_URL_REQUEST)
+        
+        if let weather = weather {
+            DispatchQueue.main.async {
+                self.updateLayoutForWeather(weather: weather)
+            }
+        }
         
     }
     
@@ -260,11 +217,12 @@ class MainController: UIViewController {
         weatherTypeLabel.text = currentWeather.summary
         weatherImageView.image = UIImage(named: currentWeather.icon.getSummaryCode())
         temperatureLabel.text = "\(currentWeather.temperature.rounded())°"
-        feelsLikeValueLabel.text = "\(currentWeather.apparentTemperature.rounded())°"
-        humidityValueLabel.text = currentWeather.humidity.toPercent()
-        windSpeedValueLabel.text = currentWeather.windSpeed.rounded().doubleToString(with: "Km/h")
-        windDirectionValueLabel.text = currentWeather.windBearing.toCompass()
-        visibilityValueLabel.text = currentWeather.visibility.rounded().doubleToString(with: "km")
+        
+        // update this and remove comment !!!!!!!!!
+        feelsLikeView.valueLabel.text = "\(currentWeather.apparentTemperature.rounded())°"
+        humidityView.valueLabel.text = currentWeather.humidity.toPercent()
+        windView.valueLabel.text = "\(currentWeather.windSpeed.rounded().doubleToString(with: "Km/h")) from \(currentWeather.windBearing.toCompass())"
+        visibilityView.valueLabel.text = currentWeather.visibility.rounded().doubleToString(with: "km")
         
         for subView in contentView.subviews {
             UIView.animate(withDuration: 0.5) {
@@ -316,7 +274,7 @@ class MainController: UIViewController {
         
         view.layoutIfNeeded()
         
-        let thirdHeightOfContentView = (contentView.frame.height - navigationController!.navigationBar.frame.height) / 3
+        let thirdHeightOfContentView = (contentView.frame.height - navigationController!.navigationBar.frame.height) / 4
         
         contentView.addSubview(weatherTypeLabel)
         weatherTypeLabel.anchor(top: contentView.topAnchor, paddingTop: 20, right: contentView.rightAnchor, paddingRight: 20, left: contentView.leftAnchor, paddingLeft: 20, bottom: nil, paddingBottom: 0, width: 0, height: 40)
@@ -326,35 +284,25 @@ class MainController: UIViewController {
         weatherImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 
         contentView.addSubview(weeklyWeatherButton)
-        weeklyWeatherButton.anchor(top: nil, paddingTop: 0, right: nil, paddingRight: 0, left: nil, paddingLeft: 0, bottom: contentView.bottomAnchor, paddingBottom: 20, width: 200, height: 40)
-        weeklyWeatherButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
-        weeklyWeatherButton.layer.cornerRadius = 5
+        weeklyWeatherButton.anchor(top: nil, paddingTop: 0, right: contentView.rightAnchor, paddingRight: 20, left: contentView.leftAnchor, paddingLeft: 20, bottom: contentView.bottomAnchor, paddingBottom: 20, width: 0, height: 40)
 
         // details stuff
         
         contentView.addSubview(temperatureLabel)
         temperatureLabel.anchor(top: weatherImageView.bottomAnchor, paddingTop: -20, right: contentView.rightAnchor, paddingRight: 0, left: contentView.leftAnchor, paddingLeft: 0, bottom: nil, paddingBottom: 0, width: 0, height: 50)
         
-        contentView.addSubview(detailsLabel)
-        detailsLabel.anchor(top: temperatureLabel.bottomAnchor, paddingTop: 10, right: contentView.rightAnchor, paddingRight: 0, left: contentView.leftAnchor, paddingLeft: 0, bottom: nil, paddingBottom: 0, width: 0, height: 20)
+        contentView.addSubview(infoContainerView)
+        infoContainerView.anchor(top: temperatureLabel.bottomAnchor, paddingTop: 20, right: contentView.rightAnchor, paddingRight: 20, left: contentView.leftAnchor, paddingLeft: 20, bottom: weeklyWeatherButton.topAnchor, paddingBottom: 20, width: 0, height: 0)
         
-        contentView.addSubview(separatorDetailsLine)
-        separatorDetailsLine.anchor(top: detailsLabel.bottomAnchor, paddingTop: 10, right: nil, paddingRight: 0, left: nil, paddingLeft: 0, bottom: nil, paddingBottom: 0, width: 75, height: 2)
-        separatorDetailsLine.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
-
-        let detailsLeftStackView = UIStackView(arrangedSubviews: [feelsLikeLabel, humidityLabel, windSpeedLabel, windDirectionLabel, visibilityLabel])
-        detailsLeftStackView.axis = .vertical
-        detailsLeftStackView.distribution = .fillEqually
-
-        let detailsRightStackView = UIStackView(arrangedSubviews: [feelsLikeValueLabel, humidityValueLabel, windSpeedValueLabel, windDirectionValueLabel, visibilityValueLabel])
-        detailsRightStackView.axis = .vertical
-        detailsRightStackView.distribution = .fillEqually
-
-        let detailsCombinedStackView = UIStackView(arrangedSubviews: [detailsLeftStackView, detailsRightStackView])
-        detailsCombinedStackView.distribution = .fillProportionally
-
-        contentView.addSubview(detailsCombinedStackView)
-        detailsCombinedStackView.anchor(top: separatorDetailsLine.bottomAnchor, paddingTop: 10, right: weatherImageView.rightAnchor, paddingRight: 0, left: weatherImageView.leftAnchor, paddingLeft: 0, bottom: weeklyWeatherButton.topAnchor, paddingBottom: 20, width: 0, height: 0)
+        // info stackview
+        
+        let infoStackView = UIStackView(arrangedSubviews: [feelsLikeView, windView, humidityView, visibilityView])
+        infoStackView.axis = .vertical
+        infoStackView.spacing = 20
+        infoStackView.distribution = .fillEqually
+        
+        infoContainerView.addSubview(infoStackView)
+        infoStackView.anchor(top: infoContainerView.topAnchor, paddingTop: 0, right: infoContainerView.rightAnchor, paddingRight: 0, left: infoContainerView.leftAnchor, paddingLeft: 0, bottom: infoContainerView.bottomAnchor, paddingBottom: 0, width: 0, height: 0)
         
         for subView in contentView.subviews {
             subView.alpha = 0

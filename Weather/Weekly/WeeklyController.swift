@@ -23,20 +23,31 @@ class WeeklyController: UIViewController {
         return cv
     }()
     
+    let collectionViewContentView : UIView = {
+        let v = UIView()
+        return v
+    }()
+    
+    let padding : CGFloat = 20
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.themedWhite
         
-        // add collection view to view and configure it (register cell, delegate, data source etc)
+        // add content view for collection view
+        view.addSubview(collectionViewContentView)
+        collectionViewContentView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: padding, right: view.rightAnchor, paddingRight: padding, left: view.leftAnchor, paddingLeft: padding, bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 20, width: 0, height: 0)
+        
+        // add collection view to contentView and configure it (register cell, delegate, data source etc)
         configureCollectionView()
         
     }
     
     fileprivate func configureCollectionView() {
         
-        view.addSubview(collectionView)
-        collectionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 20, right: view.rightAnchor, paddingRight: 20, left: view.leftAnchor, paddingLeft: 20, bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 20, width: 0, height: 0)
+        collectionViewContentView.addSubview(collectionView)
+        collectionView.anchor(top: collectionViewContentView.topAnchor, paddingTop: 0, right: collectionViewContentView.rightAnchor, paddingRight: 0, left: collectionViewContentView.leftAnchor, paddingLeft: 0, bottom: collectionViewContentView.bottomAnchor, paddingBottom: 0, width: 0, height: 0)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -92,7 +103,7 @@ extension WeeklyController : UICollectionViewDataSource, UICollectionViewDelegat
         
         guard let tappedCell = collectionView.cellForItem(at: indexPath) else { return }
         
-        collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+        collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
         collectionView.isScrollEnabled = false
         
         let modalView = WVModalView(frame: tappedCell.frame)
@@ -104,30 +115,39 @@ extension WeeklyController : UICollectionViewDataSource, UICollectionViewDelegat
         currentModalView = modalView
         
         modalView.translatesAutoresizingMaskIntoConstraints = false
-        modalView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        modalView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        modalView.widthAnchor.constraint(equalToConstant: tappedCell.frame.width).isActive = true
+        modalView.centerXAnchor.constraint(equalTo: collectionViewContentView.centerXAnchor).isActive = true
+        modalView.centerYAnchor.constraint(equalTo: collectionViewContentView.centerYAnchor).isActive = true
+        modalView.widthAnchor.constraint(equalTo: collectionViewContentView.widthAnchor).isActive = true
+        modalView.heightAnchor.constraint(equalTo: self.collectionViewContentView.heightAnchor).isActive = true
         
         // modal view weather info
         guard let cellIndex = collectionView.indexPath(for: tappedCell)?.item else { return }
         
         let weather = weeklyWeather[cellIndex]
         
-        
         modalView.dayLabel.text = cellIndex == 0 ? "TODAY" : weather.time?.toDay().uppercased() ?? "nil"
         modalView.summaryLabel.text = weather.summary
         modalView.imageView.image = UIImage(named: weather.icon?.getSummaryCode() ?? "")
-        modalView.maxTemperatureValue.text = "\(weather.temperatureHigh?.rounded() ?? 0.0)° at \(weather.temperatureHighTime?.toHour() ?? "0:0")"
-        modalView.minTemperatureValue.text = "\(weather.temperatureLow?.rounded() ?? 0.0)° at \(weather.temperatureLowTime?.toHour() ?? "0:0")"
-        modalView.windValue.text = "\(weather.windSpeed?.rounded().doubleToString(with: "Km/h") ?? "0 Km/h") from \(weather.windBearing?.toCompass() ?? "")"
-        modalView.humidityValue.text = weather.humidity?.toPercent() ?? "0 %"
-        modalView.visibilityValue.text = weather.visibility?.rounded().doubleToString(with: "km") ?? "0 km"
         
-        UIView.animate(withDuration: 0.25) {
-            modalView.heightAnchor.constraint(equalToConstant: self.view.frame.height - 40).isActive = true
-            collectionView.layoutSubviews()
-        }
+        // max temp
+        modalView.maxTempView.nameLabel.text = "HIGH TEMP"
+        modalView.maxTempView.valueLabel.text = "\(weather.temperatureHigh?.rounded() ?? 0.0)° at \(weather.temperatureHighTime?.toHour() ?? "0:0")"
         
+        // min temp
+        modalView.minTempView.nameLabel.text = "LOW TEMP"
+        modalView.minTempView.valueLabel.text = "\(weather.temperatureLow?.rounded() ?? 0.0)° at \(weather.temperatureLowTime?.toHour() ?? "0:0")"
+        
+        // wind info
+        modalView.windView.nameLabel.text = "WIND"
+        modalView.windView.valueLabel.text = "\(weather.windSpeed?.rounded().doubleToString(with: "Km/h") ?? "0 Km/h") from \(weather.windBearing?.toCompass() ?? "")"
+        
+        // humidity
+        modalView.humidityView.nameLabel.text = "HUMIDITY"
+        modalView.humidityView.valueLabel.text = weather.humidity?.toPercent() ?? "0 %"
+        
+        // visibility
+        modalView.visibilityView.nameLabel.text = "VISIBILITY"
+        modalView.visibilityView.valueLabel.text = weather.visibility?.rounded().doubleToString(with: "km") ?? "0 km"
         
         
     }

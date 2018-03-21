@@ -13,9 +13,12 @@ class WCButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        setTitleColor(UIColor.themedBlue, for: .normal)
+        backgroundColor = UIColor.themedBlue
+        setTitleColor(UIColor.themedWhite, for: .normal)
+        titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         layer.borderColor = UIColor.themedBlue.cgColor
         layer.borderWidth = 2
+        layer.cornerRadius = 10
         
     }
     
@@ -27,8 +30,8 @@ class WCButton: UIButton {
         didSet {
             
             UIView.animate(withDuration: 0.25) {
-                self.setTitleColor(self.isHighlighted ? UIColor.themedWhite : UIColor.themedBlue, for: .normal)
-                self.backgroundColor = self.isHighlighted ? UIColor.themedBlue : UIColor.clear
+                self.setTitleColor(self.isHighlighted ? UIColor.themedBlue : UIColor.themedWhite, for: .normal)
+                self.backgroundColor = self.isHighlighted ? UIColor.clear : UIColor.themedBlue
             }
             
         }
