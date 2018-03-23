@@ -17,7 +17,7 @@ extension Int {
         } else if self > 300 && self < 330 {
             return "Northwest"
         } else if self > 30 && self < 60 {
-            return "Notheast"
+            return "Northeast"
         } else if self >= 60 && self <= 120 {
             return "East"
         } else if self > 120 && self < 150 {

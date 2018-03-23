@@ -158,20 +158,6 @@ class MainController: UIViewController {
         return b
     }()
     
-    
-    @objc func weeklyButtonPressed(sender : UIButton) {
-        
-        let weeklyController = WeeklyController()
-        weeklyController.navigationItem.title = "WEEKLY"
-        weeklyController.weeklyWeather = self.weeklyWeather
-        
-        let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
-        self.navigationItem.backBarButtonItem = backButton
-        
-        navigationController?.pushViewController(weeklyController, animated: true)
-        
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -201,10 +187,26 @@ class MainController: UIViewController {
         
     }
     
+    @objc func weeklyButtonPressed(sender : UIButton) {
+        
+        let weeklyController = WeeklyController()
+        weeklyController.navigationItem.title = "WEEKLY"
+        weeklyController.weeklyWeather = self.weeklyWeather
+        
+        let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
+        self.navigationItem.backBarButtonItem = backButton
+        
+        navigationController?.pushViewController(weeklyController, animated: true)
+        
+    }
+    
     @objc func handleSearchTapped() {
         
         let searchController = SearchCityController()
         searchController.navigationItem.title = "SEARCH CITY"
+        
+        let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
+        self.navigationItem.backBarButtonItem = backButton
         
         self.navigationController?.pushViewController(searchController, animated: true)
         
@@ -218,7 +220,6 @@ class MainController: UIViewController {
         weatherImageView.image = UIImage(named: currentWeather.icon.getSummaryCode())
         temperatureLabel.text = "\(currentWeather.temperature.rounded())°"
         
-        // update this and remove comment !!!!!!!!!
         feelsLikeView.valueLabel.text = "\(currentWeather.apparentTemperature.rounded())°"
         humidityView.valueLabel.text = currentWeather.humidity.toPercent()
         windView.valueLabel.text = "\(currentWeather.windSpeed.rounded().doubleToString(with: "Km/h")) from \(currentWeather.windBearing.toCompass())"
