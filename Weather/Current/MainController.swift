@@ -15,20 +15,64 @@ class MainController: UIViewController {
     
     var locationManager : CLLocationManager!
     
-    var weather : Weather? {
+    var customCityName : String? {
         didSet {
-            guard let weather = weather else { return }
-            // update layout ...
-            DispatchQueue.main.async {
-                self.updateLayoutForWeather(weather: weather)
+            
+            guard let selectedName = customCityName else { return }
+            
+            getCoordinates(cityName: selectedName) { (coordinates) in
+                
+                let location = CLLocation(latitude: coordinates.latitude, longitude: coordinates.longitude)
+                
+                self.currentLocation = location
+                
+//                DispatchQueue.main.async {
+//
+//                    self.title = selectedName.uppercased()
+//
+//                    self.getWeather(latitude: coordinates.latitude, longitude: coordinates.longitude)
+//
+//                    if let fetchedWeather = self.weather {
+//                        DispatchQueue.main.async {
+//                            self.updateLayoutForWeather(weather: fetchedWeather)
+//
+//                        }
+//                    }
+//                }
+            }
+        }
+    }
+    
+    func getCoordinates(cityName : String, completion : @escaping (CLLocationCoordinate2D) -> Void) {
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(cityName) { (placemarks, error) in
+            
+            if error == nil {
+                if let placemark = placemarks?.first {
+                    let location = placemark.location!
+                    
+                    completion(location.coordinate)
+                    return
+                }
             }
             
+            completion(kCLLocationCoordinate2DInvalid)
+        }
+    }
+    
+    var weather : Weather? {
+        
+        didSet {
+            
+            DispatchQueue.main.async {
+                self.updateLayoutForWeather(weather: self.weather!)
+            }
             // update array of weekly weather
             var weeklyWeatherData = [DailyWeather]()
             
-            for dailyWeather in weather.daily.data {
+            for dailyWeather in weather!.daily.data {
                 
-                let daily = DailyWeather(summary: dailyWeather.summary, icon: dailyWeather.icon, time: dailyWeather.time, humidity: dailyWeather.humidity, windSpeed: dailyWeather.windSpeed, windBearing: dailyWeather.windBearing, temperatureHigh: dailyWeather.temperatureHigh, temperatureHighTime: dailyWeather.temperatureHighTime, temperatureLow: dailyWeather.temperatureLow, temperatureLowTime: dailyWeather.temperatureLowTime, visibility : dailyWeather.visibility)
+                let daily = DailyWeather(summary: dailyWeather.summary, icon: dailyWeather.icon, time: dailyWeather.time, humidity: dailyWeather.humidity, windSpeed: dailyWeather.windSpeed, windBearing: dailyWeather.windBearing, temperatureHigh: dailyWeather.temperatureHigh, temperatureHighTime: dailyWeather.temperatureHighTime, temperatureLow: dailyWeather.temperatureLow, temperatureLowTime: dailyWeather.temperatureLowTime, visibility: dailyWeather.visibility)
                 
                 weeklyWeatherData.append(daily)
             }
@@ -38,33 +82,86 @@ class MainController: UIViewController {
         }
     }
     
-    var weeklyWeather : [DailyWeather]? {
-        
-        didSet {
-            print("There is weather data available for \(weeklyWeather?.count ?? 0) days.")
-            for weather in weeklyWeather! {
-                print(weather)
-            }
-            
-        }
-        
-    }
+    var weeklyWeather : [DailyWeather]?
     
     var currentLocation : CLLocation? {
         didSet {
-            
             if let location = currentLocation {
-                UserLocation.shared.latitude = location.coordinate.latitude
-                UserLocation.shared.longitude = location.coordinate.longitude
-                
                 location.getCurrentCity(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude) { (cityName) in
-                    self.navigationItem.title = cityName.uppercased()
+                    self.title = cityName.uppercased()
                 }
                 
-                requestWeather(withUrl: WEATHER_URL_REQUEST)
-                print(WEATHER_URL_REQUEST)
+                DispatchQueue.global(qos: .userInteractive).sync {
+                    
+                    self.getWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+                    
+                    if let fetchedWeather = self.weather {
+                        DispatchQueue.main.async {
+                            self.updateLayoutForWeather(weather: fetchedWeather)
+                            
+                        }
+                    }
+                    
+                }
             }
         }
+    }
+    
+    @objc fileprivate func showCurrent() {
+        currentLocation = locationManager.location
+    }
+    
+    fileprivate func getWeather(latitude : Double, longitude : Double) {
+        
+        guard let requestUrl = URL(string: "https://api.darksky.net/forecast/\(WEATHER_API_KEY)/\(latitude),\(longitude)?units=si") else { return }
+        
+        URLSession.shared.dataTask(with: requestUrl) { (data, response, error) in
+            
+            if let err = error {
+                print("Error while fetching weather data. ", err)
+                return
+            }
+            
+            guard let data = data else { return }
+            
+            do {
+                
+                self.weather = try JSONDecoder().decode(Weather.self, from: data)
+                
+            } catch {
+                print(error.localizedDescription)
+            }
+            
+            
+        }.resume()
+        
+    }
+    
+    fileprivate func updateLayoutForWeather(weather : Weather) {
+        
+        contentView.subviews.forEach { (view) in
+            UIView.animate(withDuration: 0.5, animations: {
+                view.alpha = 0
+            })
+        }
+        
+        let currentWeather = weather.currently
+        
+        weatherTypeLabel.text = currentWeather.summary
+        weatherImageView.image = UIImage(named: currentWeather.icon.getSummaryCode())
+        temperatureLabel.text = "\(currentWeather.temperature.rounded())°"
+        
+        feelsLikeView.valueLabel.text = "\(currentWeather.apparentTemperature.rounded())°"
+        humidityView.valueLabel.text = currentWeather.humidity.toPercent()
+        windView.valueLabel.text = "\(currentWeather.windSpeed.rounded().doubleToString(with: "Km/h")) from \(currentWeather.windBearing.toCompass())"
+        visibilityView.valueLabel.text = currentWeather.visibility.rounded().doubleToString(with: "km")
+        
+        contentView.subviews.forEach { (view) in
+            UIView.animate(withDuration: 0.5, animations: {
+                view.alpha = 1
+            })
+        }
+        
     }
     
     // views
@@ -165,10 +262,13 @@ class MainController: UIViewController {
         configureCoreLocation()
         
         view.backgroundColor = UIColor.themedWhite
-        self.navigationItem.title = "WEATHER"
+        self.title = "WEATHER"
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "search"), style: .plain, target: self, action: #selector(handleSearchTapped))
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "refresh"), style: .plain, target: self, action: #selector(handleRefreshTapped))
+        let refreshButton = UIBarButtonItem(image: #imageLiteral(resourceName: "refresh"), style: .plain, target: self, action: #selector(handleRefreshTapped))
+        let locationButton = UIBarButtonItem(image: #imageLiteral(resourceName: "location"), style: .plain, target: self, action: #selector(showCurrent))
+        
+        navigationItem.leftBarButtonItems = [refreshButton, locationButton]
         
         // add subviews
         layoutViews()
@@ -177,13 +277,15 @@ class MainController: UIViewController {
     
     @objc func handleRefreshTapped() {
         
-        requestWeather(withUrl: WEATHER_URL_REQUEST)
+        guard let location = currentLocation else { return }
         
-        if let weather = weather {
-            DispatchQueue.main.async {
-                self.updateLayoutForWeather(weather: weather)
-            }
+        location.getCurrentCity(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude) { (name) in
+            print("city name: ", name)
         }
+        
+        DispatchQueue.main.async {
+            self.getWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        } 
         
     }
     
@@ -192,10 +294,10 @@ class MainController: UIViewController {
         let weeklyController = WeeklyController()
         weeklyController.navigationItem.title = "WEEKLY"
         weeklyController.weeklyWeather = self.weeklyWeather
-        
+
         let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         self.navigationItem.backBarButtonItem = backButton
-        
+
         navigationController?.pushViewController(weeklyController, animated: true)
         
     }
@@ -204,6 +306,7 @@ class MainController: UIViewController {
         
         let searchController = SearchCityController()
         searchController.navigationItem.title = "SEARCH CITY"
+        searchController.delegate = self
         
         let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         self.navigationItem.backBarButtonItem = backButton
@@ -212,48 +315,9 @@ class MainController: UIViewController {
         
     }
     
-    fileprivate func updateLayoutForWeather(weather : Weather) {
-        
-        let currentWeather = weather.currently
-        
-        weatherTypeLabel.text = currentWeather.summary
-        weatherImageView.image = UIImage(named: currentWeather.icon.getSummaryCode())
-        temperatureLabel.text = "\(currentWeather.temperature.rounded())°"
-        
-        feelsLikeView.valueLabel.text = "\(currentWeather.apparentTemperature.rounded())°"
-        humidityView.valueLabel.text = currentWeather.humidity.toPercent()
-        windView.valueLabel.text = "\(currentWeather.windSpeed.rounded().doubleToString(with: "Km/h")) from \(currentWeather.windBearing.toCompass())"
-        visibilityView.valueLabel.text = currentWeather.visibility.rounded().doubleToString(with: "km")
-        
-        for subView in contentView.subviews {
-            UIView.animate(withDuration: 0.5) {
-                subView.alpha = 1
-            }
-        }
-        
-    }
-    
-    fileprivate func requestWeather(withUrl url : String) {
-        
-        guard let requestUrl = URL(string: url) else { return }
-    
-        URLSession.shared.dataTask(with: requestUrl) { (data, response, err) in
-            
-            guard let data = data else { return }
-            
-            do {
-                
-                self.weather = try JSONDecoder().decode(Weather.self, from: data)
-
-            } catch {
-                print(error.localizedDescription)
-            }
-            
-        }.resume()
-        
-    }
-    
     fileprivate func configureCoreLocation() {
+        
+        print("configureCoreLocation called")
         
         locationManager = CLLocationManager()
         locationManager.delegate = self
@@ -328,7 +392,13 @@ extension MainController : CLLocationManagerDelegate {
     
 }
 
+// search city stuff ...
 
+extension MainController : SearchCityDelegate {
+    func didSent(cityName: String) {
+        customCityName = cityName
+    }
+}
 
 
 

@@ -18,8 +18,8 @@ class WVInfoView : UIView {
     var name : String?
     var value : String?
     
-    let textLabel : UILabel = {
-        let l = UILabel()
+    lazy var textLabel : UILabel = {
+        var l = UILabel()
         l.textAlignment = .center
         
         return l
@@ -39,8 +39,8 @@ class WVInfoView : UIView {
         return l
     }()
     
-    let valueLabel : UILabel = {
-        let l = UILabel()
+    lazy var valueLabel : UILabel = {
+        var l = UILabel()
         l.textAlignment = .center
         l.textColor = UIColor.themedBlack
         l.font = UIFont.systemFont(ofSize: 14)

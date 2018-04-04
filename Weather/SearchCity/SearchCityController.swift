@@ -9,14 +9,19 @@
 import UIKit
 import GooglePlaces
 
+protocol SearchCityDelegate {
+    
+    func didSent(cityName : String)
+    
+}
+
 class SearchCityController: UIViewController {
     
+    var delegate : SearchCityDelegate?
+    
     let cities = ["Trebnje", "Novo mesto", "Ljubljana", "Maribor", "Celje", "Zagreb", "Kupinec", "Klinča Sela", "Mirna"]
-    var citiesNew = [NSAttributedString]() {
-        didSet {
-            print(citiesNew)
-        }
-    }
+    
+    var citiesNew = [NSAttributedString]()
     
     let searchBar : UISearchBar = {
         let sb = UISearchBar()
@@ -188,19 +193,12 @@ extension SearchCityController: UITableViewDelegate, UITableViewDataSource {
         // trim and create new substring .... characters from 0 too index when "," occurs.
         let newCityName = cityName.prefix(trimIndex)
         
-        print(newCityName)
+        guard let delegate = delegate else { return }
         
-        // with this city, return to root view controller (e.g MainController) and refetch weather stats with new, selected, location.
+        delegate.didSent(cityName: String(newCityName))
+
         
-        // hereeeeee
-        
-        // right below this comment
-        
-        // yes
-        
-        // its fun
-        
-        // lol
+        navigationController?.popViewController(animated: true)
     }
     
 }
@@ -213,6 +211,7 @@ extension SearchCityController : UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.endEditing(true)
+        print("searchBarSearchButtonClicked")
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -225,17 +224,18 @@ extension SearchCityController : UISearchBarDelegate {
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         guard let text = searchBar.text else { return }
         placeAutocomplete(text: text)
+        print("searchBarTextDidEndEditing")
     }
     
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if searchText == "" {
-//            searchBar.endEditing(true)
-//            citiesNew = []
-//            tableView.reloadData()
-//        } else {
-//            placeAutocomplete(text: searchText)
-//        }
-//    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == "" {
+            searchBar.endEditing(true)
+            citiesNew = []
+            tableView.reloadData()
+        } else {
+            placeAutocomplete(text: searchText)
+        }
+    }
     
     
 }
