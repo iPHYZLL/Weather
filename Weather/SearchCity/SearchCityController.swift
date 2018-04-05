@@ -227,15 +227,15 @@ extension SearchCityController : UISearchBarDelegate {
         print("searchBarTextDidEndEditing")
     }
     
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText == "" {
-            searchBar.endEditing(true)
-            citiesNew = []
-            tableView.reloadData()
-        } else {
-            placeAutocomplete(text: searchText)
-        }
-    }
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if searchText == "" {
+//            searchBar.endEditing(true)
+//            citiesNew = []
+//            tableView.reloadData()
+//        } else {
+//            placeAutocomplete(text: searchText)
+//        }
+//    }
     
     
 }
