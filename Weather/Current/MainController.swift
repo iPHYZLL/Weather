@@ -26,19 +26,6 @@ class MainController: UIViewController {
                 
                 self.currentLocation = location
                 
-//                DispatchQueue.main.async {
-//
-//                    self.title = selectedName.uppercased()
-//
-//                    self.getWeather(latitude: coordinates.latitude, longitude: coordinates.longitude)
-//
-//                    if let fetchedWeather = self.weather {
-//                        DispatchQueue.main.async {
-//                            self.updateLayoutForWeather(weather: fetchedWeather)
-//
-//                        }
-//                    }
-//                }
             }
         }
     }
@@ -87,8 +74,14 @@ class MainController: UIViewController {
     var currentLocation : CLLocation? {
         didSet {
             if let location = currentLocation {
-                location.getCurrentCity(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude) { (cityName) in
-                    self.title = cityName.uppercased()
+                if let customCity = customCityName {
+                    DispatchQueue.main.async {
+                        self.title = customCity.uppercased()
+                    }
+                } else {
+                    location.getCurrentCity(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude) { (cityName) in
+                        self.title = cityName.uppercased()
+                    }
                 }
                 
                 DispatchQueue.global(qos: .userInteractive).sync {
@@ -108,6 +101,7 @@ class MainController: UIViewController {
     }
     
     @objc fileprivate func showCurrent() {
+        customCityName = nil
         currentLocation = locationManager.location
     }
     
@@ -279,10 +273,6 @@ class MainController: UIViewController {
         
         guard let location = currentLocation else { return }
         
-        location.getCurrentCity(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude) { (name) in
-            print("city name: ", name)
-        }
-        
         DispatchQueue.main.async {
             self.getWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         } 
@@ -316,8 +306,6 @@ class MainController: UIViewController {
     }
     
     fileprivate func configureCoreLocation() {
-        
-        print("configureCoreLocation called")
         
         locationManager = CLLocationManager()
         locationManager.delegate = self
